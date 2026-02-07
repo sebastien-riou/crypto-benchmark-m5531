@@ -1,0 +1,27 @@
+# A project translates into one executable or library.
+project:
+
+  groups:
+    - group: Source Files
+      files:
+        - file: ./main.c
+
+  # List components to use for your application.
+  # A software component is a re-usable unit that may be configurable.
+  components:
+    - component: ARM::CMSIS:CORE
+    - component: Device:Startup
+    - component: Device:StdDriver:CLK
+    - component: Device:StdDriver:Retarget
+    - component: Device:StdDriver:SYS
+    - component: Device:StdDriver:UART
+    - component: Device:Common:M55M1_M5531
+    - component: Device:StdDriver:LPPDMA
+    - component: Device:StdDriver:PDMA
+
+  # List executable file formats to be generated.
+  output:
+    type:
+      - elf
+      - hex
+      - map

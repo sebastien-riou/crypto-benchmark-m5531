@@ -1,0 +1,11 @@
+cbuild-pack:
+  resolved-packs:
+    - resolved-pack: ARM::CMSIS@6.3.0
+      selected-by-pack:
+        - ARM::CMSIS
+    - resolved-pack: Nuvoton::NuMicroM55_DFP@3.1.4-rc.3
+      selected-by-pack:
+        - Nuvoton::NuMicroM55_DFP
+    - resolved-pack: Nuvoton::NuMicro_M5531_BSP@3.1.4-rc.4
+      selected-by-pack:
+        - Nuvoton::NuMicro_M5531_BSP
