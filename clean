@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -ex
+
+cbuild crypto-benchmark-m5531.csolution.yml --clean
+rm -rf out
+rm -rf tmp

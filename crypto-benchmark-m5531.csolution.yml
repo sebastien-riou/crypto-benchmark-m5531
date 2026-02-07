@@ -45,9 +45,9 @@ solution:
       debug: on
       optimize: none
 
-    - type: Release
-      debug: off
-      optimize: balanced
+  #  - type: Release
+  #    debug: off
+  #    optimize: balanced
 
   # List related projects.
   projects:
