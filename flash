@@ -1,0 +1,11 @@
+#!/bin/bash
+
+pyocd load --probe cmsisdap: --cbuild-run make.cbuild-run.yml
+
+if [ $? -eq 0 ] ; then
+    echo "Done"
+else
+    #try a second time
+    echo "Retry"
+    pyocd load --probe cmsisdap: --cbuild-run make.cbuild-run.yml
+fi

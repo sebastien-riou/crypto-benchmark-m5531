@@ -32,3 +32,12 @@ Build the firmware using make:
 ````
 ./buildit
 ````
+
+To load in flash and run:
+````
+./flash
+````
+
+To debug, use VSCode debug target 'launch'.
+
+WARNING: right now, the only way to have timing measurement working is to run it under debug.

@@ -84,6 +84,18 @@ void SYS_Init(void){
 
 }
 
+void print_test_pmu(){
+    __disable_irq();
+    printf("SYS_IsRegLocked=0x%08x\r\n",SYS_IsRegLocked());
+	PMU->CTRL = 1;//enable counters
+	printf("PMU->CTRL     = 0x%08x\r\n",PMU->CTRL);
+	PMU->CNTENSET = 1<<31;
+	printf("PMU->CNTENSET = 0x%08x\r\n",PMU->CNTENSET);
+	printf("PMU->CCNTR    = 0x%08x\r\n",PMU->CCNTR);
+	printf("PMU->CCNTR    = 0x%08x\r\n",PMU->CCNTR);
+    printf("SYS_IsRegLocked=0x%08x\r\n",SYS_IsRegLocked());
+}
+
 int main() {
     SYS_UnlockReg();
     SYS_Init();
@@ -91,7 +103,15 @@ int main() {
     __disable_irq();
     printf("\r\nM5531 (%s %s)\r\n", __DATE__, __TIME__); 
     printf("ICache: %d, DCache: %d\r\n",icache_enabled(),dcache_enabled());
-
+    printf("SYS_IsRegLocked=0x%08x\r\n",SYS_IsRegLocked());
+    printf("DWT->CTRL=0x%08x\r\n",DWT->CTRL);
+    printf("DWT->CYCCNT=0x%08x\r\n",DWT->CYCCNT);
+    DWT->CTRL |= 1;//enable DWT cycle counter
+    printf("DWT->CTRL=0x%08x\r\n",DWT->CTRL);
+    printf("DWT->CYCCNT=0x%08x\r\n",DWT->CYCCNT);
+    printf("DWT->CYCCNT=0x%08x\r\n",DWT->CYCCNT);
+    printf("SYS_IsRegLocked=0x%08x\r\n",SYS_IsRegLocked());
+    print_test_pmu();
     uint32_t i=0;
     while(1){
         delay_ms(1000);

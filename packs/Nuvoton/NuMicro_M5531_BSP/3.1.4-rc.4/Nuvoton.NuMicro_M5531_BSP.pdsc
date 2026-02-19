@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<package schemaVersion="1.7.52" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="https://raw.githubusercontent.com/Open-CMSIS-Pack/Open-CMSIS-Pack-Spec/v1.7.52/schema/PACK.xsd">
+  <!-- Must have - software pack name: -->
+  <name>NuMicro_M5531_BSP</name>
+  <!-- Must have - software pack vendor name: -->
+  <vendor>Nuvoton</vendor>
+  <!-- Strongly recommended - pack description with Overview.md file: -->
+  <description overview="README.md">Board Support Pack for M5531 Series</description>
+  <!-- Optional - pack download URL (if publicly available): -->
+  <url>https://github.com/OpenNuvoton/keil_packs/raw/master/m5531_bsp/</url>
+  <!-- Optional - Git repo URL (if applicable): -->
+  <repository></repository>
+  <!-- Strongly recommended - support contact information: -->
+  <supportContact></supportContact>
+   <!-- Must have - licensing information (for software BOM): -->
+  <license>LICENSE</license>
+  <licenseSets>
+    <licenseSet id="all" default="true" gating="true">
+      <license name="LICENSE" title="Apache 2.0 open-source license" spdx="Apache-2.0"/>
+    </licenseSet>
+  </licenseSets>
+ 
+  <!-- Must have - pack release information for versioning: -->
+  <releases>
+    <release version="3.1.4-rc.4" date="2026-01-14">
+      Fixed NuMicroM55_DFP version in requirements.
+    </release>
+    <release version="3.1.4-rc.3" date="2025-11-28">
+      Blinky example updated cmsis-toolbox version and debug configuration.
+    </release>
+    <release version="3.1.4-rc.2" date="2025-11-26">
+      Removed dummy files of CMSIS VIO driver and Template example.
+    </release>
+    <release version="3.1.4-rc.1" date="2025-11-21">
+      Moved CMSIS VIO driver to BSP pack.
+    </release>
+    <release version="3.1.3" date="2025-11-04">
+      Moved standard drivers, CMSIS drivers, and libraries to DFP pack.
+      Added Blink example.
+    </release>
+    <release version="3.1.2" date="2025-08-08">
+      Supported M5531B.
+      Added CMSIS drivers, new sample codes.
+      Updated startup, standard drivers, libraries, sample codes.
+      Removed RTC_TimeAndTick sample code.
+    </release>
+  </releases>
+
+  <keywords>
+    <!-- Optional - keywords for indexing: -->
+    <keyword>Nuvoton</keyword>
+    <keyword>Board Support Pack</keyword>
+    <keyword>NuMicro_M5531</keyword>
+    <keyword>M5531 BSP</keyword>
+    <keyword>M5531H2LJAE</keyword>
+    <keyword>NuMaker-M5531</keyword>
+  </keywords>
+
+  <requirements>
+    <!-- Strongly recommended - requirement to DFP (or other packs): -->
+    <packages>
+      <package vendor="Nuvoton" name="NuMicroM55_DFP" version="3.1.4-rc.3"/>
+    </packages>
+  </requirements>
+
+  <!-- Must have - conditions section: -->
+  <conditions>
+    <condition id="CMSIS Driver M5531 VIO">
+      <description>CMSIS VIO M5531 Driver</description>
+      <require Dfamily="NuMicro M55 Family" Dvendor="Nuvoton:18"/>
+    </condition>
+  </conditions>
+
+  <!-- Strongly recommended - components section: -->
+  <components>
+    <component Cclass="CMSIS Driver" Cgroup="VIO" Csub="Board" Cvariant="NuMaker-M5531" Cversion="1.0.0" condition="CMSIS Driver M5531 VIO">
+      <description>CMSIS VIO driver for NuMaker-M5531</description>
+      <files>
+      <file category="sourceC" name="Library/CMSIS/Driver/VIO/Source/vio_NuMaker-M5531.c"/>
+      </files>
+    </component>
+  </components>
+
+  <!-- Must have - boards section: -->
+  <boards>
+    <!-- Must have - board information: -->
+    <board vendor="Nuvoton" name="NuMaker-M5531" revision="V1.0"
+           salesContact="https://direct.nuvoton.com/en/contact-us"
+           orderForm="https://direct.nuvoton.com/en/numaker-m5531">
+      <!-- Strongly recommended - board description: -->
+      <description>NuMaker-M5531 Development Board with M5531H2LJAE MCU</description>
+      <image small="Images/numaker-m5531_small.png"
+             large="Images/numaker-m5531_large.png"/>
+      <book category="overview"  name="https://direct.nuvoton.com/en/numaker-m5531" title="NuMaker-M5531"/>
+      <book category="schematic" name="https://www.nuvoton.com/resource-download.jsp?tp_GUID=HL102025091707512412" title="Schematic"/>
+      <book category="manual"    name="https://www.nuvoton.com/resource-download.jsp?tp_GUID=UG132025091610463701" title="User Manual"/>
+      <book category="other"     name="Documents/OVERVIEW.md" title="Guide"/>
+      <!-- Must have - on-board device information: -->
+      <mountedDevice    deviceIndex="0" Dvendor="Nuvoton:18" Dname="M5531H2LJAE"/>
+      <!-- Strongly recommended - on-board device compatibility information: -->
+      <compatibleDevice deviceIndex="0" Dvendor="Nuvoton:18" Dname="M5531*"/>
+      <!-- Strongly recommended - board features: -->
+      <feature type="ODbg"          n="1"         name="On-board Nu-Link2-Me"/>
+      <feature type="PWR"           n="5"         name="USB Powered"/>
+      <feature type="PWR"           n="3.3" m="5" name="External Supply"/>
+      <feature type="LED"           n="3"         name="User LEDs"/>
+      <feature type="Button"        n="2"         name="User Buttons"/>
+      <feature type="DIO"           n="4"         name="Extended connectors to all chip pins"/>
+      <feature type="USB"           n="1"         name="High-Speed USB OTG with USB-C Connector"/>
+      <feature type="USB"           n="1"         name="Full-Speed USB OTG with USB-C Connector"/>
+      <!-- Strongly recommended - on-board debug probe information (if applicable): -->
+      <debugInterface adapter="Nu-Link" connector="USB-C"/>
+      <debugProbe connector="USB-C" debugClock="10000000" debugLink="swd" name="CMSIS-DAP"/>
+    </board>
+  </boards>
+
+  <examples>
+    <example name="Blinky" folder="Examples/Blinky" doc="README.md">
+      <description>Blinky example with VIO</description>
+      <board name="NuMaker-M5531" vendor="Nuvoton"/>
+      <project>
+        <environment name="csolution" load="VSCode/Blinky.csolution.yml"/>
+        <environment name="uv"        load="KEIL/Blinky.uvprojx"/>
+        <environment name="iar"       load="IAR/Blinky.ewp"/>
+      </project>
+    </example>
+  </examples>
+
+</package>

@@ -1,0 +1,8 @@
+{
+    "debug.hideSlowPreLaunchWarning": true,
+    "debug.showInStatusBar": "never",
+    "clangd.arguments": [
+        "--compile-commands-dir=/home/sru/repos/crypto-benchmark-m5531/out/crypto-benchmark-m5531/M5531H2LJAE/Debug"
+    ],
+    "cmake.ignoreCMakeListsMissing": true
+}

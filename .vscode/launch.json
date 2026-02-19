@@ -1,0 +1,61 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "CMSIS_DAP@pyOCD (launch)",
+            "type": "cortex-debug",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "executable": "out/crypto-benchmark-m5531/M5531H2LJAE/Debug/crypto-benchmark-m5531.elf",
+            "servertype": "openocd",
+            "serverpath": "${command:openocd-helper.getOpenOcdPath}",
+            "svdFile": "${command:openocd-helper.getSvdPath}",
+            "configFiles": [
+                "interface/cmsis-dap.cfg",
+                "${command:openocd-helper.getOpenOcdConfigPath}"
+            ],
+            "runToEntryPoint": "main",
+            "overrideLaunchCommands": [
+                "monitor reset halt"
+            ]
+        },
+        {
+            "name": "launch",
+            "type": "cortex-debug",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "executable": "build/crypto-benchmark-m5531.elf",
+            "servertype": "openocd",
+            "serverpath": "${command:openocd-helper.getOpenOcdPath}",
+            "svdFile": "${command:openocd-helper.getSvdPath}",
+            "configFiles": [
+                "interface/cmsis-dap.cfg",
+                "${command:openocd-helper.getOpenOcdConfigPath}"
+            ],
+            "runToEntryPoint": "main",
+            "overrideLaunchCommands": [
+                "monitor reset halt"
+            ]
+        },
+        {
+            "name": "CMSIS_DAP@pyOCD (attach)",
+            "type": "gdbtarget",
+            "request": "attach",
+            "cwd": "${workspaceFolder}/",
+            "program": "crypto-benchmark-m5531/M5531H2LJAE/Debug/crypto-benchmark-m5531.elf",
+            "gdb": "arm-none-eabi-gdb",
+            "initCommands": [
+                ""
+            ],
+            "customResetCommands": [
+                "monitor reset halt"
+            ],
+            "target": {
+                "port": "3333"
+            },
+            "cmsis": {
+                "updateConfiguration": "auto"
+            }
+        }
+    ]
+}
