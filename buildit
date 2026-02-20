@@ -2,5 +2,6 @@
 
 set -ex
 
+./clean
 #cbuild crypto-benchmark-m5531.csolution.yml --rebuild --verbose
 make all

@@ -40,4 +40,4 @@ To load in flash and run:
 
 To debug, use VSCode debug target 'launch'.
 
-WARNING: right now, the only way to have timing measurement working is to run it under debug.
+WARNING: right now, the only way to have timing measurement working is to run it under debug, you can do it with the debug target 'Run' (same as to 'launch' but starts execution right away).

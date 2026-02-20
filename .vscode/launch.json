@@ -38,6 +38,24 @@
             ]
         },
         {
+            "name": "Run",
+            "type": "cortex-debug",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "executable": "build/crypto-benchmark-m5531.elf",
+            "servertype": "openocd",
+            "serverpath": "${command:openocd-helper.getOpenOcdPath}",
+            "svdFile": "${command:openocd-helper.getSvdPath}",
+            "configFiles": [
+                "interface/cmsis-dap.cfg",
+                "${command:openocd-helper.getOpenOcdConfigPath}"
+            ],
+            "runToEntryPoint": "main",
+            "overrideLaunchCommands": [
+                "monitor reset"
+            ]
+        },
+        {
             "name": "CMSIS_DAP@pyOCD (attach)",
             "type": "gdbtarget",
             "request": "attach",

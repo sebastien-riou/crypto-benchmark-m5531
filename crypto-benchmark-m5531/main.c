@@ -18,6 +18,9 @@ void delay_at_least_cycles(uint32_t cycles){
     dwt_enable();
     const uint32_t start = LBMK_get_cpu_timestamp();
     const uint32_t stop = start + cycles;
+    if(stop<start){
+        while(LBMK_get_cpu_timestamp()> start);
+    }
     while(LBMK_get_cpu_timestamp()< stop);
 }
 void delay_kcycles(uint32_t kcycles){
@@ -96,25 +99,42 @@ void print_test_pmu(){
     printf("SYS_IsRegLocked=0x%08x\r\n",SYS_IsRegLocked());
 }
 
+void delay_cnt_s(uint32_t seconds){
+    for(unsigned int i=0;i<seconds;i++){
+        volatile uint32_t cnt=0;
+        for(cnt=0;cnt<1000*1000*10;cnt++);
+    }
+}
+
 int main() {
     SYS_UnlockReg();
     SYS_Init();
     InitDebugUart();
     __disable_irq();
+    printf("\r\nwait 5s\r\n"); 
+    delay_cnt_s(5);
     printf("\r\nM5531 (%s %s)\r\n", __DATE__, __TIME__); 
     printf("ICache: %d, DCache: %d\r\n",icache_enabled(),dcache_enabled());
     printf("SYS_IsRegLocked=0x%08x\r\n",SYS_IsRegLocked());
-    printf("DWT->CTRL=0x%08x\r\n",DWT->CTRL);
-    printf("DWT->CYCCNT=0x%08x\r\n",DWT->CYCCNT);
-    DWT->CTRL |= 1;//enable DWT cycle counter
-    printf("DWT->CTRL=0x%08x\r\n",DWT->CTRL);
-    printf("DWT->CYCCNT=0x%08x\r\n",DWT->CYCCNT);
-    printf("DWT->CYCCNT=0x%08x\r\n",DWT->CYCCNT);
-    printf("SYS_IsRegLocked=0x%08x\r\n",SYS_IsRegLocked());
-    print_test_pmu();
+
+    if(1){
+        printf("DWT->CTRL=0x%08x\r\n",DWT->CTRL);
+        printf("DWT->CYCCNT=0x%08x\r\n",DWT->CYCCNT);
+        DWT->CTRL |= 1;//enable DWT cycle counter
+        printf("DWT->CTRL=0x%08x\r\n",DWT->CTRL);
+        printf("DWT->CYCCNT=0x%08x\r\n",DWT->CYCCNT);
+        printf("DWT->CYCCNT=0x%08x\r\n",DWT->CYCCNT);
+        printf("SYS_IsRegLocked=0x%08x\r\n",SYS_IsRegLocked());
+        DWT->CTRL = 0;
+        printf("DWT->CTRL=0x%08x\r\n",DWT->CTRL);
+        printf("DWT->CYCCNT=0x%08x\r\n",DWT->CYCCNT);
+        
+        //print_test_pmu();
+    }
     uint32_t i=0;
     while(1){
         delay_ms(1000);
+        //delay_cnt_s(1);
         printf("Alive: %u\r\n",i++);
     }
 }
