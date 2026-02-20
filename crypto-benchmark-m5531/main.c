@@ -31,6 +31,7 @@ void delay_mcycles(uint32_t mcycles){
 }
 #define SYS_FREQ_HZ FREQ_220MHZ
 #define SYS_FREQ_MHZ (SYS_FREQ_HZ / 1000000)
+
 void delay_ms(uint32_t ms){
     uint32_t cycles = ms * 1000 * SYS_FREQ_MHZ;
     delay_at_least_cycles(cycles);
@@ -105,6 +106,28 @@ void delay_cnt_s(uint32_t seconds){
         for(cnt=0;cnt<1000*1000*10;cnt++);
     }
 }
+#define xstr(s) str(s)
+#define str(s) #s
+void lean_benchmark(unsigned int ninfo, const char*info[], bool run_forever);
+#define STDOUT 0x01 //WARNING: only for GCC (see retarget_GCC.c), other compilers may use another value!
+#define FILEHANDLE int
+int _write(FILEHANDLE fh, const unsigned char *buf, unsigned int len, int mode);
+void com_tx(const void *const buf, unsigned int size){
+    const uint8_t*buf8 = (const uint8_t*)buf;
+    for(unsigned int i=0;i<size;i++){
+        //SendChar_ToUART(buf8[i]);//change \n into \r\n
+        while (DEBUG_PORT->FIFOSTS & UART_FIFOSTS_TXFULL_Msk) {}
+        DEBUG_PORT->DAT = (uint32_t)buf8[i];
+    }
+    //_write(STDOUT,buf,size,0);//change \n into \r\n
+}
+static volatile uint64_t heap_usage;
+void LBMK_init_heap_usage(){
+  heap_usage = 0;
+}
+uint64_t LBMK_get_heap_usage(){
+  return heap_usage;
+}
 
 int main() {
     SYS_UnlockReg();
@@ -129,12 +152,30 @@ int main() {
         printf("DWT->CTRL=0x%08x\r\n",DWT->CTRL);
         printf("DWT->CYCCNT=0x%08x\r\n",DWT->CYCCNT);
         
-        //print_test_pmu();
+        print_test_pmu();
     }
-    uint32_t i=0;
-    while(1){
-        delay_ms(1000);
-        //delay_cnt_s(1);
-        printf("Alive: %u\r\n",i++);
+
+    if(0){
+        uint32_t i=0;
+        while(1){
+            delay_ms(1000);
+            //delay_cnt_s(1);
+            printf("Alive: %u\r\n",i++);
+        }
+    } else {
+        const char*msg = "\n\rHello with com_tx\n\r";
+        com_tx(msg,strlen(msg));
+        const char* icache_str = icache_enabled() ? "enabled" : "disabled";
+        const char* dcache_str = dcache_enabled() ? "enabled" : "disabled";
+        char frequency_mhz[10] = {0};
+        sprintf(frequency_mhz,"%lu",SYS_FREQ_MHZ);
+	    const char*hw_info[] = {
+            "hw_platform", "M5531",
+            "frequency_mhz", frequency_mhz,
+            "ICACHE", icache_str,
+            "DCACHE", dcache_str
+        };
+        lean_benchmark(sizeof(hw_info)/sizeof(char*),hw_info,0);
+        while(1);
     }
 }
