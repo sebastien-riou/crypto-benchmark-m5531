@@ -26,6 +26,6 @@ cd crypto-benchmark
 ./build-all-targets
 cd ..
 
-cd crypto-benchmark-stm32u5
+cd crypto-benchmark-m5531
 make clean all
 ./flash
