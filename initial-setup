@@ -1,0 +1,31 @@
+#!/bin/bash
+
+set -ex
+
+CRYPTO_BENCHMARK_TAG=v0.0.7
+WOLFSSL_TAG=crypto-benchmark-0.0.7
+
+cd ..
+if [[ ! -z $CRYPTO_BENCHMARK_USE_GIT_SSH ]]; then
+    CRYPTO_BENCHMARK_URL=git@github.com:sebastien-riou/crypto-benchmark.git
+    WOLFSSL_URL=git@github.com:sebastien-riou/wolfssl.git
+else
+    CRYPTO_BENCHMARK_URL=https://github.com/sebastien-riou/crypto-benchmark.git
+    WOLFSSL_URL=https://github.com/sebastien-riou/wolfssl.git
+fi
+
+git clone --depth=1 $CRYPTO_BENCHMARK_URL --branch $CRYPTO_BENCHMARK_TAG --single-branch
+git clone --depth=1 $WOLFSSL_URL --branch $WOLFSSL_TAG --single-branch
+
+cd wolfssl
+./buildit-mldsa-lowram
+cd ..
+
+cd crypto-benchmark
+./initial-setup 0
+./build-all-targets
+cd ..
+
+cd crypto-benchmark-stm32u5
+make clean all
+./flash
