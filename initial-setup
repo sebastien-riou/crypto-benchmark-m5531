@@ -27,5 +27,6 @@ cd crypto-benchmark
 cd ..
 
 cd crypto-benchmark-m5531
+pipenv install
 make clean all
-./flash
+pipenv run ./flash
