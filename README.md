@@ -9,6 +9,9 @@ This projected as been tested with https://github.com/xpack-dev-tools/arm-none-e
 ### CMSIS-Toolbox
 https://open-cmsis-pack.github.io/cmsis-toolbox
 
+### Pipenv
+See [pipenv-howto.md](https://gist.github.com/sebastien-riou/49b2a054fb6c6cf98ec00315070ee0a5)
+
 ### Other repositories
 Install and build them using the initial setup script:
 ````
@@ -35,7 +38,7 @@ Build the firmware using make:
 
 To load in flash and run:
 ````
-./flash
+pipenv run ./flash
 ````
 
 To debug, use VSCode debug target 'launch'.
