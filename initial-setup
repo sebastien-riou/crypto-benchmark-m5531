@@ -2,8 +2,8 @@
 
 set -ex
 
-CRYPTO_BENCHMARK_TAG=v0.0.7
-WOLFSSL_TAG=crypto-benchmark-0.0.7
+CRYPTO_BENCHMARK_TAG=v0.0.8
+WOLFSSL_TAG=crypto-benchmark-0.0.8
 
 cd ..
 if [[ ! -z $CRYPTO_BENCHMARK_USE_GIT_SSH ]]; then

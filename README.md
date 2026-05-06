@@ -25,6 +25,7 @@ Note:
 Build benchmark lib, for example:
 ````
 cd ../crypto-benchmark
+python3 link_ext.py --goal=small
 ./buildit on/cortex-m55 mldsa 44
 cd ../crypto-benchmark-m5531
 ````
