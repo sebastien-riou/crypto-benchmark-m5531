@@ -18,7 +18,7 @@ git clone --depth=1 $CRYPTO_BENCHMARK_URL --branch $CRYPTO_BENCHMARK_TAG --singl
 git clone --depth=1 $WOLFSSL_URL --branch $WOLFSSL_TAG --single-branch
 
 cd wolfssl
-./buildit-mldsa-lowram
+./buildit-mldsa-small
 cd ..
 
 cd crypto-benchmark
