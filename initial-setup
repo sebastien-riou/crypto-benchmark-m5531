@@ -2,7 +2,7 @@
 
 set -ex
 
-CRYPTO_BENCHMARK_TAG=v0.0.8
+CRYPTO_BENCHMARK_TAG=v0.0.10
 WOLFSSL_TAG=crypto-benchmark-0.0.8
 
 cd ..
