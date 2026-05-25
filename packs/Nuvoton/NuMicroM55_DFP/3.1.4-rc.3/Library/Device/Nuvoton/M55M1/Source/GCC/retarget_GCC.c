@@ -65,7 +65,7 @@ FILEHANDLE RETARGET(_open)(const char *name, int openmode)
     return -1;
 }
 
-int RETARGET(_write)(FILEHANDLE fh, const unsigned char *buf, unsigned int len, int mode)
+__attribute__((weak)) int RETARGET(_write)(FILEHANDLE fh, const unsigned char *buf, unsigned int len, int mode)
 {
     (void)mode;
 

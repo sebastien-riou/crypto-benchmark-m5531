@@ -217,7 +217,7 @@ static char GetChar(void)
 
     if (g_ICE_Connected)
     {
-        int nRet;
+        long int nRet;
 
 #if defined (__ICCARM__)
 

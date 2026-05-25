@@ -109,7 +109,9 @@ void delay_cnt_s(uint32_t seconds){
 #define xstr(s) str(s)
 #define str(s) #s
 void lean_benchmark(unsigned int ninfo, const char*info[], bool run_forever);
+#define STDIN  0x00
 #define STDOUT 0x01 //WARNING: only for GCC (see retarget_GCC.c), other compilers may use another value!
+#define STDERR 0x02
 #define FILEHANDLE int
 int _write(FILEHANDLE fh, const unsigned char *buf, unsigned int len, int mode);
 void com_tx(const void *const buf, unsigned int size){
@@ -121,6 +123,38 @@ void com_tx(const void *const buf, unsigned int size){
     }
     //_write(STDOUT,buf,size,0);//change \n into \r\n
 }
+void com_rx(void *const buf, unsigned int size){
+    uint8_t*buf8 = (uint8_t*)buf;
+    for(unsigned int i=0;i<size;i++){
+        while ((DEBUG_PORT->FIFOSTS & UART_FIFOSTS_RXEMPTY_Msk));
+        buf8[i] = (uint8_t)DEBUG_PORT->DAT;
+    }
+}
+int LBMK_putchar(int ch);
+
+int _write(FILEHANDLE fh, const unsigned char *buf, unsigned int len, int mode)
+{
+    (void)mode;
+
+    switch (fh)
+    {
+        case STDOUT:
+        case STDERR:
+        {
+            for(unsigned int i=0;i<len;i++){
+                LBMK_putchar(buf[i]);
+            }
+
+            return len;
+        }
+
+        default:
+            return EOF;
+    }
+}
+
+void LBMK_init_leancom();
+
 static volatile uint64_t heap_usage;
 void LBMK_init_heap_usage(){
   heap_usage = 0;
@@ -134,13 +168,14 @@ int main() {
     SYS_Init();
     InitDebugUart();
     __disable_irq();
-    printf("\r\nwait 5s\r\n"); 
-    delay_cnt_s(5);
+    LBMK_init_leancom();
+
     printf("\r\nM5531 (%s %s)\r\n", __DATE__, __TIME__); 
     printf("ICache: %d, DCache: %d\r\n",icache_enabled(),dcache_enabled());
     printf("SYS_IsRegLocked=0x%08x\r\n",SYS_IsRegLocked());
 
     if(1){
+        printf("trying to access DWT, if nothing appears immediatly, the device is stuck.\n");
         printf("DWT->CTRL=0x%08x\r\n",DWT->CTRL);
         printf("DWT->CYCCNT=0x%08x\r\n",DWT->CYCCNT);
         DWT->CTRL |= 1;//enable DWT cycle counter
@@ -163,8 +198,6 @@ int main() {
             printf("Alive: %u\r\n",i++);
         }
     } else {
-        const char*msg = "\n\rHello with com_tx\n\r";
-        com_tx(msg,strlen(msg));
         const char* icache_str = icache_enabled() ? "enabled" : "disabled";
         const char* dcache_str = dcache_enabled() ? "enabled" : "disabled";
         char frequency_mhz[10] = {0};
