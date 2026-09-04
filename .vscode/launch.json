@@ -2,24 +2,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "CMSIS_DAP@pyOCD (launch)",
-            "type": "cortex-debug",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "executable": "out/crypto-benchmark-m5531/M5531H2LJAE/Debug/crypto-benchmark-m5531.elf",
-            "servertype": "openocd",
-            "serverpath": "${command:openocd-helper.getOpenOcdPath}",
-            "svdFile": "${command:openocd-helper.getSvdPath}",
-            "configFiles": [
-                "interface/cmsis-dap.cfg",
-                "${command:openocd-helper.getOpenOcdConfigPath}"
-            ],
-            "runToEntryPoint": "main",
-            "overrideLaunchCommands": [
-                "monitor reset halt"
-            ]
-        },
-        {
             "name": "launch",
             "type": "cortex-debug",
             "request": "launch",
@@ -38,7 +20,7 @@
             ]
         },
         {
-            "name": "Run",
+            "name": "Run", //this suddenly fails ? try something like chmod +x ~/.vscode/extensions/nuvoton.nuvoton-openocd-0.0.17/tools/linux/bin/openocd_cmsis-dap
             "type": "cortex-debug",
             "request": "launch",
             "cwd": "${workspaceFolder}",
@@ -56,12 +38,38 @@
             ]
         },
         {
+            "name": "CMSIS_DAP@pyOCD (launch)",
+            "type": "gdbtarget",
+            "request": "attach",
+            "cwd": "${workspaceFolder}/",
+            "program": "${command:embedded-debug.getApplicationFile}",
+            "gdb": "arm-none-eabi-gdb",
+            "preLaunchTask": "LaunchpyOCDServer",
+            "initCommands": [
+                "monitor reset halt",
+                "set breakpoint pending on",
+                "tbreak main"
+            ],
+            "customResetCommands": [
+                "monitor reset halt",
+                "tbreak main"
+            ],
+            "target": {
+                "port": "3333"
+            },
+            "cmsis": {
+                "cbuildRunFile": "${command:cmsis-csolution.getCbuildRunFile}",
+                "updateConfiguration": "auto"
+            }
+        },
+        {
             "name": "CMSIS_DAP@pyOCD (attach)",
             "type": "gdbtarget",
             "request": "attach",
             "cwd": "${workspaceFolder}/",
-            "program": "crypto-benchmark-m5531/M5531H2LJAE/Debug/crypto-benchmark-m5531.elf",
+            "program": "${command:embedded-debug.getApplicationFile}",
             "gdb": "arm-none-eabi-gdb",
+            "preLaunchTask": "LaunchpyOCDServer",
             "initCommands": [
                 ""
             ],

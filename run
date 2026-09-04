@@ -1,8 +1,37 @@
 #!/bin/bash
 
+# Reset the board and let it run, then exit immediately.
+# Nothing stays attached: the firmware keeps running after this script returns.
+#
+# Why no --cbuild-run here:
+# the pack's DebugPortStart sequence (see make.cbuild-run.yml) runs on every connect and is the
+# only thing in the flow that touches nRESET:
+#     DAP_SWJ_Pins(0, 0x80, 0);        // drive nRESET low
+#     DAP_Delay(8000);
+#     DAP_SWJ_Pins(0x80, 0x80, 0);     // drive nRESET high
+# With the Nu-Link2-Me that pin does not come back: the target stays held in reset, so the next
+# connect reports "Timed out waiting for core to halt after reset (state is RESET)" and reads the
+# ROM table as cidr=0x0 / "Memory transfer fault @ 0xe000ed00". Exactly one debug connection
+# succeeds per power cycle, and only removing power recovers it (that resets the probe as well).
+#
+# Using the generic cortex_m target instead means pyocd loads no pack debug sequences at all, and
+# -m sw_sysresetreq resets through AIRCR.SYSRESETREQ -- a plain register write, no nRESET.
+# Without --halt the core is running when pyocd releases it.
+
 set -ex
 
-echo "Does not work! use debug"
-#pyocd gdbserver --port 3333 --probe cmsisdap: --connect attach --persist --reset-run --cbuild-run make.cbuild-run.yml
+pyocd reset --probe cmsisdap: --target cortex_m -m sw_sysresetreq
 
-#pyocd list --cbuild-run make.cbuild-run.yml
+# Fallbacks, in order, if the above does not leave the target running:
+#
+# 1. keep the generic target but let pyocd pick the reset method:
+#pyocd reset --probe cmsisdap: --target cortex_m
+#
+# 2. do not halt on connect either (pyocd halts by default, even for a plain reset):
+#pyocd reset --probe cmsisdap: --target cortex_m -m sw_sysresetreq -O connect_mode=attach
+#
+# 3. keep the pack (flash algorithms, memory map) but avoid the hardware reset:
+#pyocd reset --probe cmsisdap: --cbuild-run make.cbuild-run.yml -m sw_sysresetreq
+#
+# If the target is already wedged in reset from an earlier session, no pyocd invocation will
+# recover it -- the board has to lose power first.

@@ -35,11 +35,30 @@ Build the firmware using make:
 ./buildit
 ````
 
-To load in flash and run:
+To load in flash, then start execution, then collect the results:
 ````
 pipenv run ./flash
+pipenv run ./run
+cd ../crypto-benchmark && ./get-results /dev/ttyACM0 --device-timeout=180
 ````
 
-To debug, use VSCode debug target 'launch'.
+**Run these three in this order.** The order is load-bearing, not cosmetic:
 
-WARNING: right now, the only way to have timing measurement working is to run it under debug, you can do it with the debug target 'Run' (same as to 'launch' but starts execution right away).
+- `./flash` needs the pack (`--cbuild-run make.cbuild-run.yml`) for the flash algorithms, and the
+  pack's `DebugPortStop` debug sequence ends with `WriteDP(DP_CTRL_STAT, 0x00000000)`, which powers
+  the debug power domain down. The DWT and the PMU live in that domain, so afterwards `DWT->CYCCNT`
+  is frozen and writes to `DWT->CTRL` / `PMU->CTRL` are silently dropped. Firmware cannot undo it:
+  those bits are in the debug port, reachable only over SWD, never from the core.
+- `./run` resets the board with the generic `cortex_m` target and no pack, so it loads no debug
+  sequences: it powers the debug domain back up on connect and leaves it up. It exits immediately,
+  with the board running.
+- `get-results` then drives the lean-com handshake. The board waits in that handshake at startup, so
+  it can be started at any time after `./run` returns.
+
+Skipping `./run` leaves the cycle counter dead. The firmware self-checks for that and prints
+`WARNING: DWT CYCCNT is not counting, all timing measurements will read 0`, and checks again after
+the run in case a debugger detached partway through -- so a dead counter is reported rather than
+quietly turning every measurement into a constant.
+
+To debug, use VSCode debug target 'launch'. Timing measurements no longer require a debug session:
+`dwt_enable()` in `main.c` sets `DEMCR.TRCENA` itself instead of relying on the debugger to set it.
