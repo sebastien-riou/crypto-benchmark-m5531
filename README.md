@@ -39,8 +39,16 @@ To load in flash, then start execution, then collect the results:
 ````
 pipenv run ./flash
 pipenv run ./run
-cd ../crypto-benchmark && ./get-results /dev/ttyACM0 --device-timeout=180
+UART=$(./find-uart)
+(cd ../crypto-benchmark && ./get-results "$UART" --device-timeout=180)
 ````
+
+`./find-uart` prints the board's VCOM path, so nothing has to hardcode `/dev/ttyACM0`. It resolves a
+`/dev/serial/by-id` entry, whose name embeds the Nu-Link2-Me's USB serial number and is therefore
+stable across reboots and enumeration order. With more than one board attached, pin the one you want
+with `NULINK_UID=<probe serial>` -- that same variable also selects the probe for `./run`, since
+pyocd matches probes on the same serial number. `M5531_UART=<path>` overrides the lookup entirely.
+`./run` prints the resolved path after resetting, as a convenience.
 
 **Run these three in this order.** The order is load-bearing, not cosmetic:
 

@@ -18,9 +18,22 @@
 # -m sw_sysresetreq resets through AIRCR.SYSRESETREQ -- a plain register write, no nRESET.
 # Without --halt the core is running when pyocd releases it.
 
-set -ex
+set -e
 
-pyocd reset --probe cmsisdap: --target cortex_m -m sw_sysresetreq
+HERE=$(dirname "$0")
+
+# Pin one specific board with NULINK_UID=<probe serial number>; see ./find-uart. The serial in the
+# /dev/serial/by-id name is the same unique ID pyocd matches a probe on, so NULINK_UID selects the
+# probe and its VCOM together.
+PROBE="cmsisdap:${NULINK_UID:-}"
+
+set -x
+pyocd reset --probe "$PROBE" --target cortex_m -m sw_sysresetreq
+set +x
+
+# Report which VCOM this board is on, for convenience. This reset does not re-enumerate USB -- the
+# VCOM belongs to the Nu-Link2-Me, not to the target we just reset -- so the path is unchanged by it.
+"$HERE/find-uart" || true
 
 # Fallbacks, in order, if the above does not leave the target running:
 #

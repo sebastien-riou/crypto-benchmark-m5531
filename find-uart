@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# Print the /dev path of the board's VCOM (the CDC interface of the on-board Nu-Link2-Me).
+#
+# Resolution order:
+#   1. $M5531_UART, if set                  -- explicit override, printed as-is
+#   2. the by-id entry for $NULINK_UID      -- pick one specific probe
+#   3. the single Nu-Link2 CDC interface present
+#
+# Prints a /dev/serial/by-id path rather than /dev/ttyACMn on purpose: that name embeds the probe's
+# USB serial number, so it is stable across reboots and across enumeration order, and it appears and
+# disappears with the board (which is what --device-timeout waits on). The -if01 suffix is the CDC
+# interface; -if00 is the CMSIS-DAP HID interface on the same composite device.
+#
+# The serial number in the name is also the unique ID pyocd reports for the probe, so
+#   NULINK_UID=<uid> ./find-uart
+# and
+#   pyocd ... --probe cmsisdap:<uid>
+# refer to the same physical board.
+
+set -u
+
+BYID=/dev/serial/by-id
+PATTERN='usb-Nuvoton_Nu-Link2*CMSIS-DAP*-if01'
+
+if [ -n "${M5531_UART:-}" ]; then
+    echo "$M5531_UART"
+    exit 0
+fi
+
+if [ -n "${NULINK_UID:-}" ]; then
+    PATTERN="usb-Nuvoton_Nu-Link2*CMSIS-DAP_${NULINK_UID}-if01"
+fi
+
+shopt -s nullglob
+matches=( "$BYID"/$PATTERN )
+shopt -u nullglob
+
+case ${#matches[@]} in
+    1)
+        echo "${matches[0]}"
+        ;;
+    0)
+        echo "find-uart: no Nu-Link2 VCOM matching '$PATTERN' under $BYID" >&2
+        echo "find-uart: is the board plugged in and powered? serial devices present:" >&2
+        ls -1 "$BYID" 2>/dev/null | sed 's/^/  /' >&2 || echo "  (none)" >&2
+        exit 1
+        ;;
+    *)
+        echo "find-uart: several boards match; set NULINK_UID (or M5531_UART) to pick one:" >&2
+        printf '  %s\n' "${matches[@]}" >&2
+        exit 1
+        ;;
+esac
