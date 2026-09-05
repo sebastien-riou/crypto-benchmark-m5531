@@ -12,6 +12,13 @@ https://open-cmsis-pack.github.io/cmsis-toolbox
 ### Pipenv
 See [pipenv-howto.md](https://gist.github.com/sebastien-riou/49b2a054fb6c6cf98ec00315070ee0a5)
 
+`pyocd` is installed by `pipenv install` into this repo's virtualenv, never system-wide. `./flash`
+and `./run` locate it there themselves (via `pipenv --venv`), so they need no `pipenv run` prefix
+and work the same from a plain terminal, from another script, or from the VSCode integrated
+terminal -- the last of which auto-activates the virtualenv and so used to be the only place a bare
+`pyocd` resolved. They also work from any working directory. If you see
+`no pyocd in this repo's virtualenv`, run `pipenv install` here.
+
 ### Other repositories
 Install and build them using the initial setup script:
 ````
@@ -37,8 +44,8 @@ Build the firmware using make:
 
 To load in flash, then start execution, then collect the results:
 ````
-pipenv run ./flash
-pipenv run ./run
+./flash
+./run
 UART=$(./find-uart)
 (cd ../crypto-benchmark && ./get-results "$UART" --device-timeout=180)
 ````

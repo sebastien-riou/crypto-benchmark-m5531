@@ -1,6 +1,28 @@
 #!/bin/bash
 
-pyocd load --probe cmsisdap: --cbuild-run make.cbuild-run.yml
+HERE=$(cd "$(dirname "$0")" && pwd)
+
+# pyocd is installed in this repo's pipenv virtualenv (see Pipfile), never on the system PATH.
+# Resolve it here instead of requiring the caller to type `pipenv run ./flash`: the VSCode
+# integrated terminal auto-activates the virtualenv but a plain terminal does not, and this script
+# has to behave identically in both -- it is normally called from other scripts, by people who
+# cloned the repo and may not have VSCode at all. Same approach as `pipenv run python ...` inside
+# crypto-benchmark/get-results.
+#
+# Going through the virtualenv unconditionally (rather than falling back to a pyocd found on PATH)
+# is deliberate: it pins the exact version Pipfile.lock resolved.
+VENV=$(PIPENV_PIPFILE="$HERE/Pipfile" pipenv --venv 2>/dev/null) || true
+PYOCD="$VENV/bin/pyocd"
+if [ ! -x "$PYOCD" ]; then
+    echo "flash: no pyocd in this repo's virtualenv." >&2
+    echo "flash: run 'pipenv install' in $HERE first (see README.md)." >&2
+    exit 1
+fi
+
+# Absolute paths so this works from any working directory.
+CBUILD_RUN="$HERE/make.cbuild-run.yml"
+
+"$PYOCD" load --probe cmsisdap: --cbuild-run "$CBUILD_RUN"
 
 if [ $? -eq 0 ] ; then
     echo "Done"
@@ -8,5 +30,5 @@ else
     #try a second time
     echo "Retry in 5 second"
     sleep 5
-    pyocd load --probe cmsisdap: --cbuild-run make.cbuild-run.yml
+    "$PYOCD" load --probe cmsisdap: --cbuild-run "$CBUILD_RUN"
 fi

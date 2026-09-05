@@ -20,7 +20,20 @@
 
 set -e
 
-HERE=$(dirname "$0")
+HERE=$(cd "$(dirname "$0")" && pwd)
+
+# pyocd is installed in this repo's pipenv virtualenv (see Pipfile), never on the system PATH.
+# Resolve it here instead of requiring the caller to type `pipenv run ./run`: the VSCode integrated
+# terminal auto-activates the virtualenv but a plain terminal does not, and this script has to
+# behave identically in both. Going through the virtualenv unconditionally, rather than falling
+# back to a pyocd found on PATH, pins the exact version Pipfile.lock resolved.
+VENV=$(PIPENV_PIPFILE="$HERE/Pipfile" pipenv --venv 2>/dev/null) || true
+PYOCD="$VENV/bin/pyocd"
+if [ ! -x "$PYOCD" ]; then
+    echo "run: no pyocd in this repo's virtualenv." >&2
+    echo "run: run 'pipenv install' in $HERE first (see README.md)." >&2
+    exit 1
+fi
 
 # Pin one specific board with NULINK_UID=<probe serial number>; see ./find-uart. The serial in the
 # /dev/serial/by-id name is the same unique ID pyocd matches a probe on, so NULINK_UID selects the
@@ -28,7 +41,7 @@ HERE=$(dirname "$0")
 PROBE="cmsisdap:${NULINK_UID:-}"
 
 set -x
-pyocd reset --probe "$PROBE" --target cortex_m -m sw_sysresetreq
+"$PYOCD" reset --probe "$PROBE" --target cortex_m -m sw_sysresetreq
 set +x
 
 # Report which VCOM this board is on, for convenience. This reset does not re-enumerate USB -- the
