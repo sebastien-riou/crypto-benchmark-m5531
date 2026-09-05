@@ -203,6 +203,55 @@ void dbg_printf(const char*fmt, ...){
     va_end(args);
     if(n > 0) com_tx(buf, (unsigned int)(n > (int)sizeof(buf) ? (int)sizeof(buf) : n));
 }
+/* --- Hard fault reporting -------------------------------------------------------------------
+   Overrides the pack's __WEAK ProcessHardFault (StdDriver/src/retarget.c:424). Two problems
+   with the pack's version in this project:
+     - The pack's HardFault_Handler (startup_M5531.c:570) IGNORES the return value and simply
+       returns from the exception, so the faulting instruction re-executes and the analysis is
+       reported forever. Over lean-com that is an endless stream of PRINT packets: the host
+       never reaches the data it is waiting for, so a crash presents as a hang.
+     - It reports with printf(), which needs newlib's vsnprintf and a few hundred bytes of
+       stack at the exact moment the stack may be the reason we faulted.
+   This version formats without newlib and reports through LBMK_print_impl(), which is
+   lean-com framed once the handshake has run and raw before it, so it is correct on either
+   side of LBMK_init_leancom() with no flag to keep in sync. Then it stops, so the fault is
+   reported exactly once. */
+void LBMK_print_impl(const char*msg);
+
+static char*fault_hex(char*p, uint32_t v){
+    static const char hex[] = "0123456789ABCDEF";
+    *p++ = '0'; *p++ = 'x';
+    for(int i=28;i>=0;i-=4) *p++ = hex[(v>>i)&0xF];
+    return p;
+}
+static char*fault_str(char*p, const char*s){
+    while(*s) *p++ = *s++;
+    return p;
+}
+uint32_t ProcessHardFault(uint32_t *pu32StackFrame){
+    char buf[256];
+    char*p = buf;
+    p = fault_str(p, "\r\nEXCEPTION: HardFault\r\n  PC=");
+    p = fault_hex(p, pu32StackFrame[6]);
+    p = fault_str(p, " LR=");
+    p = fault_hex(p, pu32StackFrame[5]);
+    p = fault_str(p, " xPSR=");
+    p = fault_hex(p, pu32StackFrame[7]);
+    p = fault_str(p, "\r\n  CFSR=");
+    p = fault_hex(p, SCB->CFSR);
+    p = fault_str(p, " HFSR=");
+    p = fault_hex(p, SCB->HFSR);
+    p = fault_str(p, "\r\n  BFAR=");
+    p = fault_hex(p, SCB->BFAR);
+    p = fault_str(p, " MMFAR=");
+    p = fault_hex(p, SCB->MMFAR);
+    p = fault_str(p, "\r\n  halted, any results above are invalid\r\n");
+    *p = 0;
+    LBMK_print_impl(buf);
+    /* Do not return: the handler would resume at the faulting instruction and fault again. */
+    while(1);
+}
+
 int LBMK_putchar(int ch);
 
 int _write(FILEHANDLE fh, const unsigned char *buf, unsigned int len, int mode)
