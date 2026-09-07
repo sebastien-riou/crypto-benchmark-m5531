@@ -20,13 +20,14 @@ terminal -- the last of which auto-activates the virtualenv and so used to be th
 `no pyocd in this repo's virtualenv`, run `pipenv install` here.
 
 ### Other repositories
-Install and build them using the initial setup script:
+This repo is set up as an add-on of [crypto-benchmark](https://github.com/sebastien-riou/crypto-benchmark)'s
+`initial-setup`, which builds `crypto-benchmark`'s own library for `cortex-m55`,
+runs `pipenv install` here (to bootstrap `pyocd`), and then builds this repo's
+firmware:
 ````
-./initial-setup
+cd ../crypto-benchmark
+./initial-setup --level=custom --addons=crypto-benchmark-m5531
 ````
-
-Note:
-- the script build libraries also for risc-v, so it requires a `riscv-none-elf-gcc` in the path. if you do not want that, comment out riscv builds in the build-all-target scripts. 
 
 ## How to build and run using CLI
 Build benchmark lib, for example:
