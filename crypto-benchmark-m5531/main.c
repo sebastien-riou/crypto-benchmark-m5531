@@ -277,13 +277,7 @@ int _write(FILEHANDLE fh, const unsigned char *buf, unsigned int len, int mode)
 
 void LBMK_init_leancom();
 
-static volatile uint64_t heap_usage;
-void LBMK_init_heap_usage(){
-  heap_usage = 0;
-}
-uint64_t LBMK_get_heap_usage(){
-  return heap_usage;
-}
+/* heap use for lean-benchmark: ../crypto-benchmark/common/lbmk_heap.c (Makefile) */
 
 /* Set to 1 to dump the UART/GPIO state and watch the RX line instead of running the benchmark.
    Read it with a plain terminal (115200 8N1), no host tool needed. */

@@ -33,6 +33,7 @@ DEVICE_DIR = $(OUR_SRC)/RTE/Device/M5531H2LJAE
 
 C_SOURCES =  \
 $(OUR_SRC)/main.c \
+../crypto-benchmark/common/lbmk_heap.c \
 $(DEVICE_DIR)/startup_M5531.c \
 $(DEVICE_DIR)/system_M5531.c \
 $(NUVOTON_SRC)/StdDriver/src/retarget.c \
@@ -136,6 +137,8 @@ LIBS = -lc -lm -lnosys -lcrypto-benchmark
 LIBDIR = -L../crypto-benchmark/build/cortex-m55/
 # libcrypto-benchmark.a is built with LTO objects, optimize them at link time
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,--defsym=STACK_SIZE=$(STACK_SIZE) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections -flto
+# heap use for lean-benchmark (../crypto-benchmark/common/lbmk_heap.c) wraps the allocator
+LDFLAGS += -Wl,--wrap=malloc,--wrap=calloc,--wrap=realloc,--wrap=free
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).elf.asm $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
