@@ -25,7 +25,7 @@ void dwt_enable(){
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 }
 
-uint32_t LBMK_get_cpu_timestamp(){
+uint64_t LBMK_get_cpu_timestamp(){
 	return DWT->CYCCNT;
 }
 
