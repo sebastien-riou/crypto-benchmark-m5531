@@ -223,6 +223,22 @@ SECTIONS
 
   __eitcm = __etext + (__itcm_text_end__ - __itcm_text_start__);
 
+  /* crypto-benchmark: the stack (STACK_SIZE) at the start of SRAM, below the data, instead of the top of DTCM:
+   * DTCM (128 KiB) is too small for the deepest benchmarks. At the start of SRAM, its addresses do not depend on the
+   * benchmarked library's data. The start-up sets MSPLIM to __StackLimit: a deeper stack faults instead of leaving SRAM.
+   * The heap (.heap, SRAM's last section) grows up from above the data. */
+  .stack (NOLOAD) :
+  {
+    . = ALIGN(8);
+    __StackLimit = .;
+    . = . + __STACK_SIZE;
+    . = ALIGN(8);
+    __StackTop = .;
+  } > SRAM
+  PROVIDE(__stack = __StackTop);
+  /* Reset_Handler pushes on the initial stack before it powers SRAM1 and SRAM2 on: the stack must be in SRAM0 */
+  ASSERT(__StackTop <= ORIGIN(SRAM) + 0x80000, "the stack (STACK_SIZE) must fit SRAM0, the first 512 KiB of SRAM")
+
   .data : AT(__eitcm)
   {
     __data_start__ = .;
@@ -335,16 +351,5 @@ SECTIONS
     __HeapLimit = .;
   } > SRAM
 
-  .stack (ORIGIN(DTCM) + LENGTH(DTCM) - __STACK_SIZE) (NOLOAD) :
-  {
-    . = ALIGN(8);
-    __StackLimit = .;
-    . = . + __STACK_SIZE;
-    . = ALIGN(8);
-    __StackTop = .;
-  } > DTCM
-  PROVIDE(__stack = __StackTop);
-
-  /* Because stack placed in DTCM, cannot check if data + heap + stack exceeds SRAM limit */
-  /*ASSERT(__StackLimit >= __HeapLimit, "region SRAM overflowed with stack")*/
+  /* crypto-benchmark: the stack is at the start of SRAM, see .stack above */
 }

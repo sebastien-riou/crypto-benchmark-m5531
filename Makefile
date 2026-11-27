@@ -130,10 +130,10 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 #######################################
 # link script
 LDSCRIPT = $(DEVICE_DIR)/M5531.ld
-# 124 KiB, at the top of DTCM (128 KiB) above its data (the vector table's copy), as in lean-bsp-numaker-m5531:
-# the deepest stack of the benchmarked libraries (mldsa-native fast, ML-DSA-87) is about 110 KiB on the M33. The start-up
-# sets MSPLIM to its bottom: a deeper stack takes a fault instead of overwriting the data.
-STACK_SIZE = 0x1F000
+# 256 KiB, as the STM32U5A5 firmware has, at the start of SRAM (the linker script's .stack). The deepest benchmarks need
+# more than DTCM's 128 KiB: lean-benchmark measures the stack by filling a window below the caller (160 KiB for the
+# ML-DSA libraries that keep the matrix on the stack). The start-up sets MSPLIM to its bottom: deeper faults.
+STACK_SIZE = 0x40000
 
 # libraries
 LIBS = -lc -lm -lnosys -lcrypto-benchmark
