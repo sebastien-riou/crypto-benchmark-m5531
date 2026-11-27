@@ -130,7 +130,10 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 #######################################
 # link script
 LDSCRIPT = $(DEVICE_DIR)/M5531.ld
-STACK_SIZE = 0x10000
+# 124 KiB, at the top of DTCM (128 KiB) above its data (the vector table's copy), as in lean-bsp-numaker-m5531:
+# the deepest stack of the benchmarked libraries (mldsa-native fast, ML-DSA-87) is about 110 KiB on the M33. The start-up
+# sets MSPLIM to its bottom: a deeper stack takes a fault instead of overwriting the data.
+STACK_SIZE = 0x1F000
 
 # libraries
 LIBS = -lc -lm -lnosys -lcrypto-benchmark
