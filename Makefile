@@ -84,7 +84,7 @@ DISASM = $(OBJDUMP) -D --visualize-jumps
 CPU = -mcpu=cortex-m55
 
 # fpu
-FPU = -mfpu=fpv5-sp-d16
+FPU = -mfpu=auto
 
 # float-abi
 FLOAT-ABI = -mfloat-abi=softfp
