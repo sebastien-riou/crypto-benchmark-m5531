@@ -1,5 +1,34 @@
 # Crypto-benchmark-m5531
+
+> [!WARNING]
+> **Deprecated.** This repository is no longer maintained. crypto-benchmark now runs on the NuMaker-M5531 board as a
+> [lean-bsp](https://github.com/sebastien-riou/lean-bsp) application:
+> [crypto-benchmark](https://github.com/sebastien-riou/crypto-benchmark)'s board glue built with
+> [lean-bsp-numaker-m5531](https://github.com/sebastien-riou/lean-bsp-numaker-m5531), a board support package shared
+> by every lean-bsp application. Follow crypto-benchmark's README, section
+> ["Benchmarking on a board"](https://github.com/sebastien-riou/crypto-benchmark#benchmarking-on-a-board).
+>
+> Compared with this project, that build runs the same machine code for every benchmarked function, with the same
+> outputs, stack, heap and footprint; average cycle counts moved by less than 1 %, from where the linker places the
+> code. It also starts reliably, where this firmware sometimes hung before the host's handshake. This repository stays
+> as it was, for reference.
+
 Integration of crypto-benchmark on NuMaker-M5531 board
+
+## Instead: the lean-bsp build
+
+With `lean-bsp`, `lean-bsp-numaker-m5531` and [lean-hwbridge](https://github.com/sebastien-riou/lean-hwbridge) set up
+as crypto-benchmark's README describes, from the `crypto-benchmark` directory, for example:
+
+````
+pipenv run python benchmark.py --hw-platform numaker-m5531 --lib pqm4 --algo mlkem --pset 768
+````
+
+The results carry the board's name in lean-bsp, `numaker-m5531`, where this repository's carried `m5531`. Since
+lean-benchmark v0.0.12 the caches are cleared before each timed operation, which this firmware did not do, so cycle
+counts are a little higher than this repository's.
+
+The instructions below are this repository's own, kept as they were.
 
 ## Dependencies
 
